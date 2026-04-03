@@ -30,13 +30,11 @@ export default function Home() {
   const {
     mutate: createRoom,
     isPending,
+    isSuccess,
     error,
   } = useMutation({
     mutationFn: async () => {
       const res = await client.api.room.create.post();
-
-      console.log({res});
-      
 
       if (res.status === 200) {
         router.push(`/room/${res.data?.roomId}`);
@@ -77,7 +75,7 @@ export default function Home() {
 
             <button
               onClick={() => createRoom()}
-              disabled={isPending}
+              disabled={isPending || isSuccess}
               className={clsx(
                 `${isPending ? "animate-pulse cursor-default!" : ""}`,
                 "w-full bg-zinc-100 text-black p-3 text-sm font-bold hover:bg-zinc-50 hover:text-black transition-colors mt-2 cursor",
@@ -87,6 +85,8 @@ export default function Home() {
                 <div className="flex-center gap-2">
                   Creating Room <Loader2 size={15} className="animate-spin" />
                 </div>
+              ) : isSuccess ? (
+                "Entering prvate room..."
               ) : (
                 <>
                   Create Secure Room <Kbd className="bg-dark rounded-xs">⏎</Kbd>
