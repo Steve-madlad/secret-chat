@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { Kbd } from "@/components/ui/kbd";
-import { client } from "@/lib/client";
-import { generateRandomName } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
-import clsx from "clsx";
-import { Loader2, Terminal, VenetianMask } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Kbd } from '@/components/ui/kbd';
+import { client } from '@/lib/client';
+import { generateRandomName } from '@/lib/utils';
+import { useMutation } from '@tanstack/react-query';
+import clsx from 'clsx';
+import { Loader2, Terminal, VenetianMask } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState('');
   const router = useRouter();
 
-  const storageKey = "chatUsr";
+  const storageKey = 'chatUsr';
 
   useEffect(() => {
     const usr = localStorage.getItem(storageKey);
@@ -46,29 +46,25 @@ export default function Home() {
   console.log({ error });
 
   return (
-    <main className="flex min-h-screen flex-center p-4">
+    <main className="flex-center flex min-h-screen p-4">
       <div className="space-y-8">
-        <div className="border space-y-6 border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
+        <div className="space-y-6 border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
           <div className="just-between items-start text-green-500">
             <div className="space-y-2">
-              <h1 className="text-2xl align-center gap-2 font-bold tracking-light">
+              <h1 className="align-center tracking-light gap-2 text-2xl font-bold">
                 Private Chat <VenetianMask size={30} />
               </h1>
-              <p className="text-zinc-500">
-                A private🔒, self-destructing🧨 chat room.
-              </p>
+              <p className="text-zinc-500">A private🔒, self-destructing🧨 chat room.</p>
             </div>
             <Terminal size={30} />
           </div>
           <div className="space-y-5">
             <div className="space-y-2">
-              <label className="align-center text zinc 500 text-white">
-                Your Identity
-              </label>
+              <label className="align-center text zinc 500 text-white">Your Identity</label>
 
               <div className="align-center gap-3">
-                <div className="flex-1 bg-zinc-950 border border-zinc-800 p-3 text-sm text-zinc-300 font-mono">
-                  {username || "..."}
+                <div className="flex-1 border border-zinc-800 bg-zinc-950 p-3 font-mono text-sm text-zinc-300">
+                  {username || '...'}
                 </div>
               </div>
             </div>
@@ -77,8 +73,8 @@ export default function Home() {
               onClick={() => createRoom()}
               disabled={isPending || isSuccess}
               className={clsx(
-                `${isPending ? "animate-pulse cursor-default!" : ""}`,
-                "w-full bg-zinc-100 text-black p-3 text-sm font-bold hover:bg-zinc-50 hover:text-black transition-colors mt-2 cursor",
+                `${isPending ? 'animate-pulse cursor-default!' : ''}`,
+                'cursor mt-2 w-full bg-zinc-100 p-3 text-sm font-bold text-black transition-colors hover:bg-zinc-50 hover:text-black',
               )}
             >
               {isPending ? (
@@ -86,7 +82,7 @@ export default function Home() {
                   Creating Room <Loader2 size={15} className="animate-spin" />
                 </div>
               ) : isSuccess ? (
-                "Entering prvate room..."
+                'Entering prvate room...'
               ) : (
                 <>
                   Create Secure Room <Kbd className="bg-dark rounded-xs">⏎</Kbd>

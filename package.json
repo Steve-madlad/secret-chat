@@ -37,6 +37,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "jsdom-quokka-plugin": "^1.0.16",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
