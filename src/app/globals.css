@@ -65,6 +65,9 @@ body {
   .align-start {
     @apply flex items-start;
   }
+  .just-between {
+    @apply flex justify-between;
+  }
   .just-start {
     @apply flex justify-start;
   }
@@ -108,7 +111,7 @@ body {
     @apply bg-[#333];
   }
   .abs-center {
-    @apply absolute left-1/2 -translate-x-1/2;
+    @apply absolute top-1/2 -translate-y-1/2;
   }
   .card-shadow {
     box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
@@ -192,7 +195,7 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-primary text-foreground;
   }
   html {
     @apply font-mono;

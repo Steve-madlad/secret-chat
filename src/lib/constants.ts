@@ -1,4 +1,4 @@
-const adjectives = [
+export const adjectives = [
   "Lisping",
   "Fiery",
   "Salty",
@@ -51,7 +51,7 @@ const adjectives = [
   "Gentle",
 ];
 
-const nouns = [
+export const nouns = [
   "Monkey",
   "Concoction",
   "Wizard",
@@ -103,9 +103,3 @@ const nouns = [
   "Zephyr",
   "Oracle",
 ];
-
-export const generateRandomName = () => {
-  const getRand = (arr: string[]) =>
-    arr[Math.floor(Math.random() * arr.length)];
-  return `${getRand(adjectives)} ${getRand(nouns)}`;
-};
