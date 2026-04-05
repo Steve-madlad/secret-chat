@@ -2,36 +2,20 @@
 
 import { Kbd } from '@/components/ui/kbd';
 import { client } from '@/lib/client';
-import { generateRandomName } from '@/lib/utils';
 import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Loader2, Terminal, VenetianMask } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import useUsername from './hooks/useUsername';
 
 export default function Home() {
-  const [username, setUsername] = useState('');
   const router = useRouter();
-
-  const storageKey = 'chatUsr';
-
-  useEffect(() => {
-    const usr = localStorage.getItem(storageKey);
-    if (usr) {
-      setUsername(usr);
-      return;
-    } else {
-      const generatedName = generateRandomName();
-      localStorage.setItem(storageKey, generatedName);
-      setUsername(generatedName);
-    }
-  }, []);
+  const { username } = useUsername();
 
   const {
     mutate: createRoom,
     isPending,
     isSuccess,
-    error,
   } = useMutation({
     mutationFn: async () => {
       const res = await client.api.room.create.post();
@@ -42,8 +26,6 @@ export default function Home() {
       return res;
     },
   });
-
-  console.log({ error });
 
   return (
     <main className="flex-center flex min-h-screen p-4">
@@ -58,6 +40,7 @@ export default function Home() {
             </div>
             <Terminal size={30} />
           </div>
+
           <div className="space-y-5">
             <div className="space-y-2">
               <label className="align-center text zinc 500 text-white">Your Identity</label>

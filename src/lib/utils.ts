@@ -12,7 +12,7 @@ export function generateRandomName() {
 }
 
 export function formatTimeRemaining(seconds: number) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
+  const minutes = seconds <= 0 ? 0 : Math.floor(seconds / 60);
+  const remainingSeconds = seconds <= 0 ? 0 : seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }

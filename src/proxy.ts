@@ -1,11 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { redis } from './app/lib/redis';
 import { nanoid } from 'nanoid';
-
-export type Room = {
-  connected: string[];
-  createdAt: number;
-};
+import { NextRequest, NextResponse } from 'next/server';
+import { type Room } from './app/types/index';
+import { redis } from './lib/redis';
 
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -33,13 +29,14 @@ export default async function proxy(req: NextRequest) {
 
   const existingToken = req.cookies.get('x-auth-token')?.value;
   const token = existingToken || nanoid();
+  const ROOM_TTL = Number(process.env['NEXT_PUBLIC_ROOM_TTL']);
 
   nextResponse.cookies.set('x-auth-token', token, {
     path: '/',
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    expires: new Date(room.createdAt + 120 * 1000),
+    expires: new Date(room.createdAt + ROOM_TTL * 1000),
   });
 
   if (existingToken && room.connected.includes(existingToken)) return nextResponse;

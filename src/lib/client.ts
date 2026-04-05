@@ -1,5 +1,6 @@
 // client.ts
-import { treaty } from '@elysiajs/eden';
 import type { App } from '@/app/api/[[...slug]]/route';
+import { treaty } from '@elysiajs/eden';
 
-export const client = treaty<App>('localhost:3000');
+const enviroment = String(process.env['NEXT_PUBLIC_ENVIRONMENT']);
+export const client = treaty<App>(enviroment);

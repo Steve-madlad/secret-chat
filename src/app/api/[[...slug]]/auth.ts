@@ -1,24 +1,12 @@
-import { redis } from '@/app/lib/redis';
-import { Room } from '@/proxy';
+import { type Room } from '@/app/types/index';
+import { AuthError } from '@/lib/errors/auth-error';
+import { redis } from '@/lib/redis';
 import Elysia from 'elysia';
 
-class AuthError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'AuthError';
-  }
-}
-
-export const authMiddleware = new Elysia({ name: 'auth' })
-  .error({ AuthError })
-  .onError(({ code, set }) => {
-    if (code === 'AuthError') set.status = 401;
-    return { error: 'Unauthorized' };
-  })
-  .derive({ as: 'scoped' }, async ({ query, cookie }) => {
+export const authMiddleware = new Elysia({ name: 'auth' }).derive(
+  { as: 'scoped' },
+  async ({ query, cookie }) => {
     const roomId = query['roomId'];
-    console.log({ query, roomId });
-
     const token = cookie['x-auth-token']?.value as string | undefined;
 
     if (!roomId || !token) {
@@ -26,10 +14,10 @@ export const authMiddleware = new Elysia({ name: 'auth' })
     }
 
     const connected: Room['connected'] | null = await redis.hget(`meta:${roomId}`, 'connected');
-
-    // if (!connected?.includes(token)) {
-    //   throw new AuthError("Valid token not found");
-    // }
+    if (!connected?.includes(token)) {
+      throw new AuthError('Valid token not found');
+    }
 
     return { auth: { roomId, token, connected } };
-  });
+  },
+);

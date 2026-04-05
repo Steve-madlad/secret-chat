@@ -1,40 +1,75 @@
 'use client';
 
+import useUsername from '@/app/hooks/useUsername';
+import { client } from '@/lib/client';
 import { formatTimeRemaining } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
-import { SendHorizontal, Terminal, VenetianMask } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ClockFading, Dot, SendHorizontal, Terminal, VenetianMask } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function page() {
-  const { id } = useParams();
+export default function Room() {
+  const { id: roomId } = useParams();
+  const { username } = useUsername();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState<string>('');
 
-  const {
-    data: room,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['room', id],
+  const ttl = Number(process.env['NEXT_PUBLIC_ROOM_TTL']);
+  const { isLoading, isError } = useQuery({
+    queryKey: ['room', roomId],
     queryFn: async () => {
-      const res = await fetch(`/api/room/${id}`);
+      const res = await client.api.room({ id: roomId as string }).get();
+      const data = res.data;
 
-      if (!res.ok) {
-        throw new Error((await res.json()).error || 'failed to fetch room');
+      if (res.status === 404 || !data) {
+        router.replace('/?error=room-not-found');
+        return null;
       }
-      const data: { connected: string[]; createdAt: number } = await res.json();
+
+      if (!res.response.ok) {
+        throw new Error('failed to fetch room');
+      }
       const now = new Date();
-      setTimeRemaining(Math.floor((data.createdAt + 120 * 1000 - now.getTime()) / 1000));
+      setTimeRemaining(Math.floor((data.createdAt + ttl * 1000 - now.getTime()) / 1000));
+
       return data;
     },
   });
 
-  const copyLink = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-  };
+  const { data: messageData } = useQuery({
+    queryKey: ['messages', roomId],
+    queryFn: async () => {
+      const res = await client.api.messages.get({
+        query: { roomId },
+      });
+
+      return res.data;
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async () => {
+      const res = await client.api.messages.post(
+        {
+          sender: username,
+          text: inputValue.trim(),
+        },
+        {
+          query: {
+            roomId: roomId as string,
+          },
+        },
+      );
+
+      return res;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['messages'] });
+    },
+  });
 
   useEffect(() => {
     if (timeRemaining === null) return;
@@ -69,6 +104,18 @@ export default function page() {
     );
   }
 
+  const copyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+  };
+
+  const sendMessage = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isPending) return;
+    if (inputValue.trim() !== '') mutate();
+    setInputValue('');
+  };
+
   return (
     <main className="col h-screen max-h-screen overflow-hidden">
       <header className="flex-between border-b border-zinc-800 bg-zinc-900/30 p-4">
@@ -89,8 +136,12 @@ export default function page() {
           <div className="col">
             <span className="text-xs text-zinc-500 uppercase">Self-Destruct</span>
             <span
-              className={`align-center gap-2 text-sm font-bold ${timeRemaining !== null && timeRemaining < 60 ? 'text-red-500' : 'text-amber-500'}`}
+              className={`align-center gap-2 text-sm font-bold ${timeRemaining === null && 'animate-pulse'} ${timeRemaining !== null && timeRemaining < 60 ? 'text-red-500' : 'text-amber-500'}`}
             >
+              <ClockFading
+                size={13}
+                className={`${timeRemaining !== null && timeRemaining <= 60 && 'animate-caret-blink'}`}
+              />
               {timeRemaining !== null ? formatTimeRemaining(timeRemaining) : '--:--'}
             </span>
           </div>
@@ -101,9 +152,23 @@ export default function page() {
         </button>
       </header>
 
-      <div className="scrollbar-thin flex-1 space-y-4 overflow-y-auto p-4"></div>
+      <div
+        style={{ colorScheme: 'dark' }}
+        className="scrollbar-thin flex-1 space-y-2 overflow-y-auto p-4"
+      >
+        {messageData?.messages?.map((message) => (
+          <PrivateMessage
+            key={message.id}
+            text={message.text}
+            username={message.sender}
+            timestamp={message.timestamp}
+            isCurrentuser={message.sender === username}
+          />
+        ))}
+      </div>
+
       <div className="border-t border-zinc-800 bg-zinc-900/30 p-4">
-        <form className="flex gap-4">
+        <form className="flex gap-4" onSubmit={sendMessage}>
           <div className="group relative flex-1">
             <span className="abs-center left-4 animate-pulse text-green-500">
               <Terminal />
@@ -111,6 +176,7 @@ export default function page() {
             <input
               type="text"
               autoFocus
+              name="message"
               value={inputValue}
               placeholder="Your message..."
               onChange={(e) => setInputValue(e.target.value)}
@@ -123,5 +189,41 @@ export default function page() {
         </form>
       </div>
     </main>
+  );
+}
+
+function PrivateMessage({
+  text,
+  username,
+  timestamp,
+  isCurrentuser,
+}: {
+  text: string;
+  username: string;
+  timestamp: number;
+  isCurrentuser: boolean;
+}) {
+  const date = new Date(timestamp);
+  const options: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  };
+
+  const formattedTime = date.toLocaleTimeString('en-US', options);
+
+  return (
+    <div>
+      <div className="flex">
+        <p className={`${isCurrentuser ? 'text-green-400' : 'text-blue-400'} text-xs`}>
+          {isCurrentuser ? 'You' : username}
+        </p>
+        <p className="align-center -translate-y-0.75 text-xs text-zinc-600">
+          <Dot />
+          {formattedTime}
+        </p>
+      </div>
+      <p className="text-secondary -translate-y-1">{text}</p>
+    </div>
   );
 }
