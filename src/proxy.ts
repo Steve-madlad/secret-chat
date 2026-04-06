@@ -30,7 +30,7 @@ export default async function proxy(req: NextRequest) {
   const existingToken = req.cookies.get('x-auth-token')?.value;
   const token = existingToken || nanoid();
   const ROOM_TTL = Number(process.env['NEXT_PUBLIC_ROOM_TTL']);
-
+  
   nextResponse.cookies.set('x-auth-token', token, {
     path: '/',
     httpOnly: true,
@@ -53,7 +53,7 @@ export default async function proxy(req: NextRequest) {
     });
     return nextResponse;
   } catch (error) {
-    return NextResponse.redirect(new URL('/?error=failed-to-connect', req.url));
+    return NextResponse.redirect(new URL('/?error=failed-to-join-room', req.url));
   }
 }
 

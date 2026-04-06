@@ -1,16 +1,44 @@
 'use client';
 
+import { Alert } from '@/components/custom/alert';
 import { Kbd } from '@/components/ui/kbd';
 import { client } from '@/lib/client';
 import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Loader2, Terminal, VenetianMask } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import useUsername from './hooks/useUsername';
+
+type ErrorTypes =
+  | 'room-not-found'
+  | 'room-is-full'
+  | 'room-expired'
+  | 'room-is-destroyed'
+  | 'failed-to-create-room'
+  | 'failed-to-join-room';
 
 export default function Home() {
   const router = useRouter();
+  const searchparam = useSearchParams();
   const { username } = useUsername();
+  const error: ErrorTypes =
+    (searchparam.get('error') as ErrorTypes) || searchparam.get('destroyed');
+  const [showError, setShowError] = useState<boolean>(false);
+  const [currentError, setCurrentError] = useState<ErrorTypes | null>(null);
+
+  useEffect(() => {
+    if (error && !currentError) {
+      setCurrentError(error);
+      setShowError(true);
+
+      const newSearchParams = new URLSearchParams(searchparam);
+      newSearchParams.delete('error');
+      newSearchParams.delete('destroyed');
+      const newUrl = newSearchParams.toString() ? `/?${newSearchParams.toString()}` : '/';
+      router.replace(newUrl);
+    }
+  }, [error, currentError, searchparam, router]);
 
   const {
     mutate: createRoom,
@@ -27,9 +55,47 @@ export default function Home() {
     },
   });
 
+  const errorMapping: Record<ErrorTypes, { title: string; description: string }> = {
+    'room-not-found': {
+      title: 'Room not found',
+      description: 'The room you are looking for does not exist.',
+    },
+    'room-is-full': {
+      title: 'Room is full',
+      description: 'The room you are looking for is full.',
+    },
+    'room-expired': {
+      title: 'Room has expired',
+      description: 'The room you are looking for has expired.',
+    },
+    'room-is-destroyed': {
+      title: 'Room is destroyed',
+      description: 'The room has been destroyed.',
+    },
+    'failed-to-create-room': {
+      title: 'Failed to create room',
+      description: 'Failed to create room. Try again.',
+    },
+    'failed-to-join-room': {
+      title: 'Failed to join room',
+      description: 'Failed to join room.',
+    },
+  };
+
   return (
     <main className="flex-center flex min-h-screen p-4">
       <div className="space-y-8">
+        {currentError && showError && (
+          <Alert
+            className="w-full"
+            title={errorMapping[currentError]?.title}
+            description={errorMapping[currentError]?.description}
+            onCLose={() => {
+              setShowError(false);
+              setCurrentError(null);
+            }}
+          />
+        )}
         <div className="space-y-6 border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
           <div className="just-between items-start text-green-500">
             <div className="space-y-2">

@@ -20,16 +20,42 @@ const rooms = new Elysia({ prefix: '/room' })
 
     return { roomId };
   })
-  .get('/:id', async ({ params }) => {
-    const roomId = params.id as string;
-    const room = await redis.hgetall<Room>(`meta:${roomId}`);
+  .use(authMiddleware)
+  .delete(
+    '/destroy',
+    async ({ auth }) => {
+      const { roomId } = auth;
+      try {
+        await redis.del(`meta:${roomId}`);
+        await redis.del(`messages:${roomId}`);
+        await redis.del(`history:${roomId}`);
+        await redis.expire(roomId, 1);
+        await realtime.channel(roomId).emit('chat.destroy', { isDestroyed: true });
+        return { message: 'Room destroyed' };
+      } catch (error) {
+        // console.log({ error });
+      }
+    },
+    {
+      query: z.object({ roomId: z.string() }),
+    },
+  )
+  .get(
+    '/',
+    async ({ auth }) => {
+      const { roomId } = auth;
+      const room = await redis.hgetall<Room>(`meta:${roomId}`);
 
-    if (!room || !room.connected) {
-      throw new NotFoundError('Room not found');
-    }
+      if (!room || !room.connected) {
+        throw new NotFoundError('Room not found');
+      }
 
-    return room;
-  });
+      return { createdAt: room.createdAt };
+    },
+    {
+      query: z.object({ roomId: z.string() }),
+    },
+  );
 
 const messages = new Elysia({ prefix: '/messages' })
   .use(authMiddleware)
@@ -69,17 +95,23 @@ const messages = new Elysia({ prefix: '/messages' })
       }),
     },
   )
-  .get('/', async ({ auth }) => {
-    const { roomId, token } = auth;
+  .get(
+    '/',
+    async ({ auth }) => {
+      const { roomId, token } = auth;
 
-    const messages = await redis.lrange<Message>(`messages:${roomId}`, 0, -1);
-    return {
-      messages: messages.map((m) => ({
-        ...m,
-        ...(token === m.token ? { token } : {}),
-      })),
-    };
-  });
+      const messages = await redis.lrange<Message>(`messages:${roomId}`, 0, -1);
+      return {
+        messages: messages.map((m) => ({
+          ...m,
+          ...(token === m.token ? { token } : {}),
+        })),
+      };
+    },
+    {
+      query: z.object({ roomId: z.string() }),
+    },
+  );
 
 const app = new Elysia({ prefix: '/api' })
   .error({ AuthError })
@@ -93,8 +125,6 @@ const app = new Elysia({ prefix: '/api' })
       return { error: error.message };
     }
 
-    console.log({ code });
-
     set.status = 500;
     return { error: 'Internal Server Error' };
   })
@@ -103,4 +133,5 @@ const app = new Elysia({ prefix: '/api' })
 
 export const GET = app.fetch;
 export const POST = app.fetch;
+export const DELETE = app.fetch;
 export type App = typeof app;

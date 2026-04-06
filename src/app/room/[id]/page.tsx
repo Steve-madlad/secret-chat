@@ -1,9 +1,11 @@
 'use client';
 
 import useUsername from '@/app/hooks/useUsername';
+import { Button } from '@/components/ui/button';
 import { client } from '@/lib/client';
+import { useRealtime } from '@/lib/realtime-client';
 import { formatTimeRemaining } from '@/lib/utils';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { ClockFading, Dot, SendHorizontal, Terminal, VenetianMask } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -12,7 +14,6 @@ export default function Room() {
   const { id: roomId } = useParams();
   const { username } = useUsername();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState<string>('');
@@ -21,16 +22,18 @@ export default function Room() {
   const { isLoading, isError } = useQuery({
     queryKey: ['room', roomId],
     queryFn: async () => {
-      const res = await client.api.room({ id: roomId as string }).get();
+      const res = await client.api.room.get({
+        query: { roomId: roomId as string },
+      });
       const data = res.data;
 
       if (res.status === 404 || !data) {
-        router.replace('/?error=room-not-found');
+        router.replace('/?error=room-expired');
         return null;
       }
 
       if (!res.response.ok) {
-        throw new Error('failed to fetch room');
+        throw new Error('Failed to fetch room');
       }
       const now = new Date();
       setTimeRemaining(Math.floor((data.createdAt + ttl * 1000 - now.getTime()) / 1000));
@@ -39,14 +42,31 @@ export default function Room() {
     },
   });
 
-  const { data: messageData } = useQuery({
+  const { data: messageData, refetch } = useQuery({
     queryKey: ['messages', roomId],
     queryFn: async () => {
       const res = await client.api.messages.get({
-        query: { roomId },
+        query: { roomId: roomId as string },
       });
 
       return res.data;
+    },
+  });
+
+  useRealtime({
+    channels: [roomId as string],
+    events: ['chat.destroy', 'chat.message'],
+    onData: ({ event }) => {
+      switch (event) {
+        case 'chat.message':
+          refetch();
+          break;
+        case 'chat.destroy':
+          router.replace('/?destroyed=room-is-destroyed');
+          break;
+        default:
+          break;
+      }
     },
   });
 
@@ -66,8 +86,15 @@ export default function Room() {
 
       return res;
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['messages'] });
+  });
+
+  const { mutate: destroyRoom } = useMutation({
+    mutationFn: async () => {
+      await client.api.room.destroy.delete(undefined, {
+        query: {
+          roomId: roomId as string,
+        },
+      });
     },
   });
 
@@ -147,9 +174,12 @@ export default function Room() {
           </div>
         </div>
 
-        <button className="bbg-zinc-800 5 group align-center disabled:opacty-50 gap-2 rounded px-3 py-1 text-xs font-bold text-zinc-400 transition-all hover:bg-red-600 hover:text-white">
+        <Button
+          onClick={() => destroyRoom()}
+          className="bbg-zinc-800 5 group align-center disabled:opacty-50 gap-2 rounded px-3 py-1 text-xs font-bold text-zinc-400 transition-all hover:bg-red-600 hover:text-white"
+        >
           <span className="group-hover:animate-pulse">💣</span> Destroy Room
-        </button>
+        </Button>
       </header>
 
       <div
