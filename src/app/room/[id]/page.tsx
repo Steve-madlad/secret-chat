@@ -6,7 +6,16 @@ import { client } from '@/lib/client';
 import { useRealtime } from '@/lib/realtime-client';
 import { formatTimeRemaining } from '@/lib/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ClockFading, Dot, SendHorizontal, Terminal, VenetianMask } from 'lucide-react';
+import {
+  Check,
+  ClockFading,
+  Copy,
+  Dot,
+  Link2,
+  SendHorizontal,
+  Terminal,
+  VenetianMask,
+} from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -17,6 +26,16 @@ export default function Room() {
 
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState<string>('');
+
+  const [copied, setCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    }
+  }, [copied]);
 
   const ttl = Number(process.env['NEXT_PUBLIC_ROOM_TTL']);
   const { isLoading, isError } = useQuery({
@@ -116,7 +135,7 @@ export default function Room() {
     return (
       <div className="flex-center h-screen">
         <div className="bg-chart-5 col gap-3 border-slate-300 p-6 px-10 text-white">
-          <h1 className="align-center gap-4 text-start text-2xl text-green-400">
+          <h1 className="align-center gap-4 text-start text-2xl text-green-500">
             Private Chat <VenetianMask size={28} />
           </h1>
           <p>Failed to fetch room :(</p>
@@ -134,6 +153,7 @@ export default function Room() {
   const copyLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
+    setCopied(true);
   };
 
   const sendMessage = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -150,13 +170,15 @@ export default function Room() {
           <div className="col">
             <span className="text-xs text-zinc-500 uppercase">Room Id</span>
             <div className="align-center gap-2">
-              <span className="font-bold text-green-500">roomId</span>
-              <button
+              <span className="align-center gap-2 text-sm font-bold text-green-500">
+                <Link2 size={20} /> Room Link
+              </span>
+              <Button
                 onClick={copyLink}
                 className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
               >
-                Copy
-              </button>
+                {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+              </Button>
             </div>
           </div>
           <div className="h-8 w-px bg-zinc-800" />
@@ -245,7 +267,7 @@ function PrivateMessage({
   return (
     <div>
       <div className="flex">
-        <p className={`${isCurrentuser ? 'text-green-400' : 'text-blue-400'} text-xs`}>
+        <p className={`${isCurrentuser ? 'text-green-500' : 'text-blue-500'} text-xs`}>
           {isCurrentuser ? 'You' : username}
         </p>
         <p className="align-center -translate-y-0.75 text-xs text-zinc-600">

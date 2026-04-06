@@ -5,10 +5,11 @@ import { Kbd } from '@/components/ui/kbd';
 import { client } from '@/lib/client';
 import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { Loader2, Terminal, VenetianMask } from 'lucide-react';
+import { HatGlasses, Loader2, Terminal, VenetianMask } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useUsername from './hooks/useUsername';
+import { Button } from '@/components/ui/button';
 
 type ErrorTypes =
   | 'room-not-found'
@@ -118,12 +119,12 @@ export default function Home() {
               </div>
             </div>
 
-            <button
+            <Button
               onClick={() => createRoom()}
               disabled={isPending || isSuccess}
               className={clsx(
                 `${isPending ? 'animate-pulse cursor-default!' : ''}`,
-                'cursor mt-2 w-full bg-zinc-100 p-3 text-sm font-bold text-black transition-colors hover:bg-zinc-50 hover:text-black',
+                'cursor mt-2 w-full bg-zinc-100 p-3 py-5 text-sm gap-3 font-bold text-black transition-colors hover:bg-zinc-300 focus-visible:bg-zinc-300 hover:text-black',
               )}
             >
               {isPending ? (
@@ -131,13 +132,13 @@ export default function Home() {
                   Creating Room <Loader2 size={15} className="animate-spin" />
                 </div>
               ) : isSuccess ? (
-                'Entering prvate room...'
+                'Entering private room...'
               ) : (
                 <>
-                  Create Secure Room <Kbd className="bg-dark rounded-xs">⏎</Kbd>
+                  Create Secure Room <HatGlasses className='size-5' />
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
