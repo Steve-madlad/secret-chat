@@ -19,7 +19,7 @@ export function Alert({
     <BaseAlert variant={'destructive'} className={cn('bg-card', className)}>
       <div className="flex-between">
         <div className="align-center gap-3">
-          <AlertTriangleIcon size={16} className='-translate-y-0.5' />
+          <AlertTriangleIcon size={16} className="-translate-y-0.5" />
           <AlertTitle className="text-base">{title}</AlertTitle>
         </div>
         <Button onClick={onCLose} className="cursor text-zinc-400">
