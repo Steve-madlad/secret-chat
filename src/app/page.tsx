@@ -19,10 +19,12 @@ type ErrorTypes =
   | 'failed-to-create-room'
   | 'failed-to-join-room';
 
-export default function page() {
-  <Suspense>
-    <Home />
-  </Suspense>;
+export default function Page() {
+  return (
+    <Suspense>
+      <Home />
+    </Suspense>
+  );
 }
 
 function Home() {
