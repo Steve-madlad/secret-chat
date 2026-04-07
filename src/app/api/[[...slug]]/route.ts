@@ -26,14 +26,14 @@ const rooms = new Elysia({ prefix: '/room' })
     async ({ auth }) => {
       const { roomId } = auth;
       try {
-        await redis.del(`meta:${roomId}`);
-        await redis.del(`messages:${roomId}`);
-        await redis.del(`history:${roomId}`);
-        await redis.expire(roomId, 1);
-        await realtime.channel(roomId).emit('chat.destroy', { isDestroyed: true });
-        return { message: 'Room destroyed' };
+        await Promise.all([
+          realtime.channel(roomId).emit('chat.destroy', { isDestroyed: true }),
+          redis.del(`meta:${roomId}`),
+          redis.del(`messages:${roomId}`),
+          redis.del(roomId),
+        ]);
       } catch (error) {
-        // console.log({ error });
+        console.error({ error });
       }
     },
     {
@@ -84,7 +84,6 @@ const messages = new Elysia({ prefix: '/messages' })
       const remaining = await redis.ttl(`meta:${roomId}`);
 
       await redis.expire(`messages:${roomId}`, remaining);
-      await redis.expire(`history:${roomId}`, remaining);
       await redis.expire(roomId, remaining);
     },
     {

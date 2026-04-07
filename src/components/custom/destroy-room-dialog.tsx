@@ -61,6 +61,7 @@ export function DestryRoomDialog({
               e.preventDefault();
               onDestroyRoom();
             }}
+            disabled={isLoading}
             className="align-center gap-3"
             variant="destructive"
           >
