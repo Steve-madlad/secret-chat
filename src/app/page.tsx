@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { HatGlasses, Loader2, Terminal, VenetianMask } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import useUsername from './hooks/useUsername';
 
 type ErrorTypes =
@@ -19,7 +19,13 @@ type ErrorTypes =
   | 'failed-to-create-room'
   | 'failed-to-join-room';
 
-export default function Home() {
+export default function page() {
+  <Suspense>
+    <Home />
+  </Suspense>;
+}
+
+function Home() {
   const router = useRouter();
   const searchparam = useSearchParams();
   const { username } = useUsername();
