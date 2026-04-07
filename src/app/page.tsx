@@ -1,6 +1,7 @@
 'use client';
 
 import { Alert } from '@/components/custom/alert';
+import { JoinRoomDialog } from '@/components/custom/join-room-dialog';
 import { Button } from '@/components/ui/button';
 import { client } from '@/lib/client';
 import { useMutation } from '@tanstack/react-query';
@@ -28,7 +29,7 @@ export default function Home() {
   const [currentError, setCurrentError] = useState<ErrorTypes | null>(null);
 
   useEffect(() => {
-    if (error && !currentError) {
+    if (error) {
       setCurrentError(error);
       setShowError(true);
 
@@ -38,7 +39,7 @@ export default function Home() {
       const newUrl = newSearchParams.toString() ? `/?${newSearchParams.toString()}` : '/';
       router.replace(newUrl);
     }
-  }, [error, currentError, searchparam, router]);
+  }, [error, searchparam, router]);
 
   const {
     mutate: createRoom,
@@ -138,6 +139,8 @@ export default function Home() {
                 </>
               )}
             </Button>
+
+            <JoinRoomDialog />
           </div>
         </div>
       </div>

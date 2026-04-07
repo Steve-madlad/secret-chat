@@ -1,7 +1,7 @@
 'use client';
 
 import useUsername from '@/app/hooks/useUsername';
-import { DestryRoomDialog } from '@/components/custom/alert-dialog';
+import { DestryRoomDialog } from '@/components/custom/destroy-room-dialog';
 import { Button } from '@/components/ui/button';
 import { client } from '@/lib/client';
 import { useRealtime } from '@/lib/realtime-client';
