@@ -1,6 +1,7 @@
 'use client';
 
 import useUsername from '@/app/hooks/useUsername';
+import { DestryRoomDialog } from '@/components/custom/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { client } from '@/lib/client';
 import { useRealtime } from '@/lib/realtime-client';
@@ -107,7 +108,7 @@ export default function Room() {
     },
   });
 
-  const { mutate: destroyRoom } = useMutation({
+  const { mutate: destroyRoom, isPending: isDestroying } = useMutation({
     mutationFn: async () => {
       await client.api.room.destroy.delete(undefined, {
         query: {
@@ -196,12 +197,7 @@ export default function Room() {
           </div>
         </div>
 
-        <Button
-          onClick={() => destroyRoom()}
-          className="bbg-zinc-800 5 group align-center disabled:opacty-50 gap-2 rounded px-3 py-1 text-xs font-bold text-zinc-400 transition-all hover:bg-red-600 hover:text-white"
-        >
-          <span className="group-hover:animate-pulse">💣</span> Destroy Room
-        </Button>
+        <DestryRoomDialog disabled={isLoading} isLoading={isDestroying} onDestroyRoom={destroyRoom} />
       </header>
 
       <div

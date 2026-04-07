@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert } from '@/components/custom/alert';
-import { Kbd } from '@/components/ui/kbd';
+import { Button } from '@/components/ui/button';
 import { client } from '@/lib/client';
 import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
@@ -9,7 +9,6 @@ import { HatGlasses, Loader2, Terminal, VenetianMask } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useUsername from './hooks/useUsername';
-import { Button } from '@/components/ui/button';
 
 type ErrorTypes =
   | 'room-not-found'
@@ -124,7 +123,7 @@ export default function Home() {
               disabled={isPending || isSuccess}
               className={clsx(
                 `${isPending ? 'animate-pulse cursor-default!' : ''}`,
-                'cursor mt-2 w-full bg-zinc-100 p-3 py-5 text-sm gap-3 font-bold text-black transition-colors hover:bg-zinc-300 focus-visible:bg-zinc-300 hover:text-black',
+                'cursor mt-2 w-full gap-3 bg-zinc-100 p-3 py-5 text-sm font-bold text-black transition-colors hover:bg-zinc-300 hover:text-black focus-visible:bg-zinc-300',
               )}
             >
               {isPending ? (
@@ -135,7 +134,7 @@ export default function Home() {
                 'Entering private room...'
               ) : (
                 <>
-                  Create Secure Room <HatGlasses className='size-5' />
+                  Create Secure Room <HatGlasses className="size-5" />
                 </>
               )}
             </Button>
