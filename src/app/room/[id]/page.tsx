@@ -197,7 +197,11 @@ export default function Room() {
           </div>
         </div>
 
-        <DestryRoomDialog disabled={isLoading} isLoading={isDestroying} onDestroyRoom={destroyRoom} />
+        <DestryRoomDialog
+          disabled={isLoading}
+          isLoading={isDestroying}
+          onDestroyRoom={destroyRoom}
+        />
       </header>
 
       <div
