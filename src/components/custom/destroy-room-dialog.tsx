@@ -36,9 +36,9 @@ export function DestryRoomDialog({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger disabled={disabled} asChild>
-        <Button className="group align-center disabled:opacty-50 gap-2 rounded bg-[#312226] px-3 py-1 text-xs font-bold text-[#f56565] transition-all hover:bg-red-600 hover:text-white">
-          <span className="flex gap-3 text-red-400 duration-150 group-hover:text-white">
-            <BombIcon className="group-hover:animate-scale-pulse -translate-y-px group-hover:fill-black" />{' '}
+        <Button className="group align-center disabled:opacty-50 gap-2 rounded bg-[#312226] px-3 py-1 text-xs font-bold text-[#f56565] transition-all hover:bg-red-600 focus-visible:bg-red-600">
+          <span className="flex gap-3 text-red-400 duration-150 group-hover:text-white group-focus-visible:text-white">
+            <BombIcon className="group-hover:animate-scale-pulse group-focus-visible:animate-scale-pulse -translate-y-px group-hover:fill-black group-focus-visible:fill-black" />{' '}
             Destroy Room
           </span>
         </Button>
