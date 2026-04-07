@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import { HatGlasses, Loader2, Terminal, VenetianMask } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import useUsername from './hooks/useUsername';
+import useUsername from '../hooks/useUsername';
 
 type ErrorTypes =
   | 'room-not-found'
