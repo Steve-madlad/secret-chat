@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://yourdomain.com'), // Replace with your actual domain
+  metadataBase: new URL('https://private-whisper-chat.vercel.app'),
   alternates: {
     canonical: '/',
   },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: 'Private Chat | Secure Self-Destructing Rooms',
     description:
       'Create a secure, temporary chat room that self-destructs. No logs, no tracking, total privacy.',
-    url: 'https://yourdomain.com', // Replace with your actual domain
+    url: 'https://private-whisper-chat.vercel.app',
     siteName: 'Private Chat',
     images: [
       {

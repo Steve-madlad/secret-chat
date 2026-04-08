@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: 'Private Chat | Secure Self-Destructing Rooms',
     description:
       'Create a secure, temporary chat room that self-destructs. No logs, no tracking, total privacy.',
-    url: 'https://yourdomain.com', // Replace with your actual domain
+    url: 'https://private-whisper-chat.vercel.app',
     siteName: 'Private Chat',
     images: [
       {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     creator: '@Theblackguy_1',
   },
   alternates: {
-    canonical: 'https://yourdomain.com', // Replace with your actual domain
+    canonical: 'https://private-whisper-chat.vercel.app',
   },
 };
 
@@ -49,7 +49,7 @@ export default function Page() {
     name: 'Private Chat',
     description:
       'Create a secure, temporary chat room that self-destructs. No logs, no tracking, total privacy.',
-    url: 'https://yourdomain.com', // Replace with your actual domain
+    url: 'https://private-whisper-chat.vercel.app',
     applicationCategory: 'CommunicationApplication',
     operatingSystem: 'Web',
     offers: {

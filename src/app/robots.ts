@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/room/',
     },
-    sitemap: 'https://yourdomain.com/sitemap.xml', // Replace with your actual domain
+    sitemap: 'https://private-whisper-chat.vercel.app/sitemap.xml',
   };
 }
