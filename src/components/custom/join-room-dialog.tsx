@@ -32,7 +32,7 @@ export function JoinRoomDialog() {
 
   const handleJoin = () => {
     if (roomId.length !== 21) {
-      setError('Room ID must be exactly 21 characters long.');
+      setError('Please enter a valid Room ID.');
       return;
     }
     setError('');
