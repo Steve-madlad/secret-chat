@@ -12,13 +12,6 @@ export const metadata: Metadata = {
   title: { default: 'Private Chat | Secure Self-Destructing Rooms', template: '%s | Private Chat' },
   description:
     'Create a secure, temporary chat room that self-destructs. No logs, no tracking, total privacy.',
-  keywords: [
-    'private chat',
-    'secure messaging',
-    'self-destructing rooms',
-    'anonymous chat',
-    'temporary chat',
-  ],
   authors: [{ name: 'Private Chat Team' }],
   creator: 'Private Chat',
   publisher: 'Private Chat',
