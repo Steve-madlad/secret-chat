@@ -12,11 +12,15 @@ const rooms = new Elysia({ prefix: '/room' })
     const roomId = nanoid();
     const ROOM_TTL = Number(process.env['NEXT_PUBLIC_ROOM_TTL']);
 
-    await redis.hset(`meta:${roomId}`, {
-      connected: [],
-      createdAt: Date.now(),
-    });
-    await redis.expire(`meta:${roomId}`, ROOM_TTL);
+    try {
+      await redis.hset(`meta:${roomId}`, {
+        connected: [],
+        createdAt: Date.now(),
+      });
+      await redis.expire(`meta:${roomId}`, ROOM_TTL);
+    } catch (error) {
+      console.error({ error });
+    }
 
     return { roomId };
   })
